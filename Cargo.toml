@@ -1,0 +1,16 @@
+[package]
+name = "pywavers"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+[lib]
+name = "pywavers"
+crate-type = ["rlib", "cdylib"]
+
+[dependencies]
+ndarray = "0.15.6"
+numpy = "0.18.0"
+pyo3 = { version = "0.18.1", features = ["extension-module"] }
+
+wavers = {path="../wavers"}
