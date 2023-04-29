@@ -1,5 +1,12 @@
 # PyWavers
-A mixed Rust and Python repository/package that exposes the Wavers Rust crate to Python. 
+## A mixed Rust and Python repository/package that exposes the Wavers Rust crate to Python. 
+
+[crates.io](https://crates.io/crates/pywavers)
+
+[Documentation](https://docs.rs/pywavers/)
+
+[Wavers](https://github.com/jmg049/wavers)
+
 
 ## Building and installing PyWavers
 Firstly, PyWavers requries a Python version >= 3.10. Secondly the only main requirements is are Maturin and Numpy.

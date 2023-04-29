@@ -1,6 +1,6 @@
 [package]
 name = "pywavers"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2021"
 authors = ["Jack Geraghty (jmg049)"]
 description = "A mixed Rust and Python crate/package for reading and writing WAVE files. Exposes the Rust crate Wavers to Python."
@@ -18,4 +18,4 @@ crate-type = ["rlib", "cdylib"]
 ndarray = "0.15.6"
 numpy = "0.18.0"
 pyo3 = { version = "0.18.1", features = ["extension-module"] }
-wavers = "0.1.0"
+wavers = "0.1.1"
