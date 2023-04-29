@@ -57,3 +57,16 @@ def write(fp: str, data: np.ndarray, sample_rate: int, dtype: np.dtype = np.int1
                 raise ValueError(f"Unsupport dtype: {dtype}")
     except Exception as e:
         raise e
+    
+
+def signal_duration(fp: str) -> int:
+    return pywavers._signal_duration(fp)
+
+def signal_channels(fp: str) -> int:
+    return pywavers._signal_channels(fp)
+
+def signal_sample_rate(fp: str) -> int:
+    return pywavers._signal_sample_rate(fp)
+
+def signal_info(fp: str) -> pywavers.SignalInfo:
+    return pywavers._signal_info(fp)

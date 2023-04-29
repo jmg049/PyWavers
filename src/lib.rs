@@ -179,6 +179,8 @@ pub fn _signal_info(fp: String) -> PyResult<SignalInfo> {
 
 #[pymodule]
 fn pywavers(_py: Python, m: &PyModule) -> PyResult<()> {
+    m.add_class::<SignalInfo>()?;
+
     m.add_function(wrap_pyfunction!(_read_i16, m)?)?;
     m.add_function(wrap_pyfunction!(_read_i32, m)?)?;
     m.add_function(wrap_pyfunction!(_read_f32, m)?)?;
