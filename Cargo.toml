@@ -9,13 +9,20 @@ license = "MIT"
 repository = "https://github.com/jmg049/PyWavers/"
 documentation = "https://docs.rs/pywavers/"
 
+
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 [lib]
 name = "pywavers"
-crate-type = ["rlib", "cdylib"]
+crate-type = ["cdylib"]
+
+[profile.release]
+lto = true
+codegen-units = 1
+opt-level = 3
 
 [dependencies]
 ndarray = "0.15.6"
-numpy = "0.18.0"
-pyo3 = { version = "0.18.1", features = ["extension-module"] }
-wavers = "0.1.1"
+numpy = "0.20.0"
+paste = "1.0.14"
+pyo3 = { version = "0.20.0", features = ["extension-module"] }
+wavers = { path="../wavers", features = ["ndarray", "pyo3"] }
