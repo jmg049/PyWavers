@@ -1,4 +1,4 @@
-use wavers::{read, write, AsNdarray, IntoNdarray, Wav, WavType};
+use wavers::{i24, read, write, AsNdarray, IntoNdarray, Wav, WavHeader, WavType};
 
 use numpy::pyo3::Python;
 use numpy::{IntoPyArray, PyArray2};
@@ -13,8 +13,7 @@ macro_rules! _read {
                 pub fn [<read_ $T>](py: Python, fp: String) -> PyResult<(&PyArray2<$T>, i32)> {
                     let wav: Wav<$T> = Wav::<$T>::from_path(&fp).map_err(|e| PyValueError::new_err(format!("Error opening wav file: {}", e)))?;
 
-                    let sample_rate = wav.sample_rate();
-                    let samples = wav.into_ndarray().map_err(|e| PyValueError::new_err(format!("Error converting wav file to ndarray: {}", e)))?;
+                    let (samples, sample_rate) = wav.into_ndarray().map_err(|e| PyValueError::new_err(format!("Error converting wav file to ndarray: {}", e)))?;
 
                     Ok((samples.into_pyarray(py), sample_rate))
                 }
@@ -23,7 +22,7 @@ macro_rules! _read {
     };
 }
 
-_read!(i16, i32, f32, f64);
+_read!(i16, i24, i32, f32, f64);
 
 macro_rules! _write {
     ($($T:ident), *) => {
@@ -42,26 +41,21 @@ macro_rules! _write {
     };
 }
 
-_write!(i16, i32, f32, f64);
+_write!(i16, i24, i32, f32, f64);
 
 #[pyclass]
 pub struct WavSpec {
-    pub sample_rate: i32,
-    pub n_channels: u16,
+    #[pyo3(get)]
     pub duration: u32,
-    pub encoding: WavType,
+    #[pyo3(get)]
+    pub header: WavHeader,
 }
 
 #[pyfunction]
 pub fn wav_spec(fp: String) -> PyResult<WavSpec> {
-    let (sample_rate, n_channels, duration, encoding) = wavers::wav_spec(&fp)
+    let (duration, header) = wavers::wav_spec(&fp)
         .map_err(|e| PyValueError::new_err(format!("Error reading wav file: {}", e)))?;
-    Ok(WavSpec {
-        sample_rate,
-        n_channels,
-        duration,
-        encoding,
-    })
+    Ok(WavSpec { duration, header })
 }
 
 #[pymodule]
@@ -69,11 +63,13 @@ fn pywavers(_py: Python, m: &PyModule) -> PyResult<()> {
     m.add_class::<WavSpec>()?;
     m.add_function(wrap_pyfunction!(wav_spec, m)?)?;
     m.add_function(wrap_pyfunction!(read_i16, m)?)?;
+    m.add_function(wrap_pyfunction!(read_i24, m)?)?;
     m.add_function(wrap_pyfunction!(read_i32, m)?)?;
     m.add_function(wrap_pyfunction!(read_f32, m)?)?;
     m.add_function(wrap_pyfunction!(read_f64, m)?)?;
 
     m.add_function(wrap_pyfunction!(write_i16, m)?)?;
+    m.add_function(wrap_pyfunction!(write_i24, m)?)?;
     m.add_function(wrap_pyfunction!(write_i32, m)?)?;
     m.add_function(wrap_pyfunction!(write_f32, m)?)?;
     m.add_function(wrap_pyfunction!(write_f64, m)?)?;

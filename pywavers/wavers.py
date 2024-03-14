@@ -1,3 +1,4 @@
+import os
 from typing import Any, Dict, Tuple
 import numpy as np
 from pywavers import pywavers
@@ -76,7 +77,8 @@ def wav_spec(fp: str) -> Dict[str, Any]:
         raise e
 
 
-ONE_CHANNEL_I16 = "./test_resources/one_channel_i16.wav"
+ONE_CHANNEL_I16 = f"{os.path.dirname(__file__)}/test_resources/one_channel_i16.wav"
+
 
 # For the below tests, only reading an i16 file is tested. This is due to the reflexive conversion operations used. If it can convert from i16 to i32 correctly, it can do i32 to i16 correctly as well. Same for float32 and float64
 
@@ -87,9 +89,13 @@ def test_read_i16_i16():
     """
     import soundfile as sf
 
-    expected_data, sr = sf.read(ONE_CHANNEL_I16, dtype=np.int16)
+    expected_data, sr = sf.read(ONE_CHANNEL_I16, dtype=np.int16, always_2d=True)
 
-    actual_data = read(ONE_CHANNEL_I16)
+    actual_data, sr = read(ONE_CHANNEL_I16)
+
+    assert actual_data.shape == expected_data.shape, "Shape mismatch, {} != {}".format(
+        actual_data.shape, expected_data.shape
+    )
 
     for exp, act in zip(expected_data, actual_data):
         assert exp == act, "Data mismatch, {} != {}".format(exp, act)
@@ -101,9 +107,9 @@ def test_read_i16_i32():
     """
     import soundfile as sf
 
-    expected_data, sr = sf.read(ONE_CHANNEL_I16, dtype=np.int32)
+    expected_data, sr = sf.read(ONE_CHANNEL_I16, dtype=np.int32, always_2d=True)
 
-    actual_data = read(ONE_CHANNEL_I16, dtype=np.int32)
+    actual_data, sr = read(ONE_CHANNEL_I16, dtype=np.int32)
 
     for exp, act in zip(expected_data, actual_data):
         assert exp == act, "Data mismatch, {} != {}".format(exp, act)
@@ -116,9 +122,9 @@ def test_read_i16_f32():
     import soundfile as sf
     from pytest import approx
 
-    expected_data, sr = sf.read(ONE_CHANNEL_I16, dtype=np.float32)
+    expected_data, sr = sf.read(ONE_CHANNEL_I16, dtype=np.float32, always_2d=True)
 
-    actual_data = read(ONE_CHANNEL_I16, dtype=np.float32)
+    actual_data, sr = read(ONE_CHANNEL_I16, dtype=np.float32)
 
     for exp, act in zip(expected_data, actual_data):
         assert exp == approx(act, 1e-4), "Data mismatch, {} != {}".format(exp, act)
@@ -131,9 +137,9 @@ def test_read_i16_f64():
     import soundfile as sf
     from pytest import approx
 
-    expected_data, sr = sf.read(ONE_CHANNEL_I16, dtype=np.float64)
+    expected_data, sr = sf.read(ONE_CHANNEL_I16, dtype=np.float64, always_2d=True)
 
-    actual_data = read(ONE_CHANNEL_I16, dtype=np.float64)
+    actual_data, sr = read(ONE_CHANNEL_I16, dtype=np.float64)
 
     for exp, act in zip(expected_data, actual_data):
         assert exp == approx(act, 1e-4), "Data mismatch, {} != {}".format(exp, act)
@@ -224,17 +230,18 @@ def test_info():
     expected_duration = 10
 
     info = wav_spec(ONE_CHANNEL_I16)
+    duration = info.duration
+    header = info.header
+    assert (
+        header.fmt_chunk.sample_rate == expected_sr
+    ), "Sample rate mismatch, {} != {}".format(header.fmt_data.sample_rate, expected_sr)
 
     assert (
-        info.fmt_data.sample_rate == expected_sr
-    ), "Sample rate mismatch, {} != {}".format(info.fmt_data.sample_rate, expected_sr)
-
-    assert (
-        info.fmt_data.channels == expected_channels
+        header.fmt_chunk.channels == expected_channels
     ), "Number of channels mismatch, {} != {}".format(
-        info.fmt_data.channels, expected_channels
+        header.fmt_data.channels, expected_channels
     )
 
-    assert info.duration == expected_duration, "Duration mismatch, {} != {}".format(
-        info.duration, expected_duration
+    assert duration == expected_duration, "Duration mismatch, {} != {}".format(
+        duration, expected_duration
     )
